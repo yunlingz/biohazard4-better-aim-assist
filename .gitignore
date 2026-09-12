@@ -3,6 +3,11 @@
 !/.gitignore
 !/.gitattributes
 !/README.md
+!/DEVELOPMENT_CONTEXT.md
+!/AGENTS.md
+!/CLAUDE.md
+!/screenshots/
+!/screenshots/head-lock.png
 !/reframework/
 !/reframework/autorun/
 !/reframework/autorun/better_aim_assist.lua

@@ -3,6 +3,8 @@
 A Lua mod for REFramework, configured for very strong controller tracking in
 Resident Evil 4 Chainsaw Demo. No Node.js, additional DLL, or other mod is needed.
 
+![Head lock active while aiming at a distant enemy in RE4 Chainsaw Demo](screenshots/head-lock.png)
+
 Version 1.5.7 keeps continuous tracking, head stabilization, and the HEAD LOCK
 display active when you hold LT / L2 with the right stick centered. RE4 has a
 separate `HoldIdle` state; the previous script checked only `IsAiming`, so
@@ -214,10 +216,18 @@ switch gestures across active/idle aim transitions, head stabilization, native
 point mismatch, 30/72/144 fps, short/medium/long distances, zoom and roll, head
 bob, stops/reversals, stale samples, position jumps, correction limits, and
 disabled recording.
-These checks use the captured demo API and mocked gameplay objects. Gameplay
-feedback confirms improved alignment through 1.5.6, with remaining visible
-offsets and HEAD LOCK disappearing when the right stick rests. Version 1.5.7
-addresses those reproduced failure modes and still needs an in-game retest.
+These checks use the captured demo API and mocked gameplay objects. The user
+retested 1.5.7 after reloading and reported that tracking, switching, and HEAD LOCK
+worked correctly. Log review confirmed fresh L2-only tracking and subpixel
+projected head offsets during settled long-range samples. Brief transition spikes
+remain, and projected samples do not independently measure the animated head at
+render time. See the development context for the evidence and its limits.
 
 API references: [REFramework scripting documentation](https://cursey.github.io/reframework-book/)
 and the local game's reflected type metadata.
+
+## Development
+
+Read [DEVELOPMENT_CONTEXT.md](DEVELOPMENT_CONTEXT.md) for the requirements,
+implementation history, debugging findings, validation record, and maintenance
+workflow. `AGENTS.md` and `CLAUDE.md` direct coding agents to that shared context.
