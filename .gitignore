@@ -2,7 +2,7 @@
 *
 !/.gitignore
 !/.gitattributes
-!/Better Aim Assist - Readme.md
+!/README.md
 !/reframework/
 !/reframework/autorun/
 !/reframework/autorun/better_aim_assist.lua
