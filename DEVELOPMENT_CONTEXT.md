@@ -184,6 +184,9 @@ aggregate counts do not imply that every original event remains inspectable.
 - Separate steady tracking from acquisition, switches, brief native target gaps,
   aim release, and stale snapshots. A retained released-aim sample is not proof
   of a tracking failure. `READY` after releasing aim is expected.
+- Aim/native status flags are polled every 0.1 s; a recorded `locked` flag uses
+  a 0.35 s recent-lock window. These can briefly differ from the latest camera
+  gate. Check sample age and tracking transitions before interpreting a row.
 - Inspect nested motion/refresh rejection reasons and selected/native enemy,
   point, and joint identities. A rejected refresh is not itself a Lua exception.
 - `steady_calls` remained zero in the captures below. Offline coverage exists,
@@ -225,17 +228,18 @@ Do not run old game-click/reload helpers in the other temporary directory.
 The user explicitly reported that 1.5.7 worked after reloading. The detailed log
 review covered a session starting **2026-09-12T17:45:45Z** (September 13 in the
 user's Asia/Taipei timezone). Later gameplay extended the same session; the
-second column below is a read-only snapshot taken while preparing this handoff.
+following columns record successive reviews. Retained sample counts can fall
+as bounded histories rotate.
 
-| Evidence | Original reviewed segment, last alignment 17:46:48Z | Later snapshot, last alignment 18:06:42Z |
-| --- | ---: | ---: |
-| Accepted targets / camera corrections | 3,946 / 3,946 | 4,526 / 4,526 |
-| Switch requests / handoffs | 47 / 42 | 48 / 43 |
-| Camera-confirmed / unconfirmed handoffs | 32 / 10 | 33 / 10 |
-| Handoff failures / searches without a directional target | 0 / 5 | 0 / 5 |
-| Fresh retained L2-only head-lock samples | 32 | 34 |
-| Measured alignment frames / estimated outliers above 3 px | 3,919 / 90 | 4,498 / 92 |
-| Final distance / projected observed-head offset | 32.095 m / 0.408 px | 32.465 m / 0.500 px |
+| Evidence | Original review, last alignment 17:46:48Z | Later snapshot, last alignment 18:06:42Z | Latest play, last alignment 18:14:18Z |
+| --- | ---: | ---: | ---: |
+| Accepted targets / camera corrections | 3,946 / 3,946 | 4,526 / 4,526 | 5,826 / 5,825 |
+| Switch requests / handoffs | 47 / 42 | 48 / 43 | 57 / 51 |
+| Camera-confirmed / unconfirmed handoffs | 32 / 10 | 33 / 10 | 40 / 11 |
+| Handoff failures / searches without a directional target | 0 / 5 | 0 / 5 | 0 / 5 |
+| Fresh retained L2-only head-lock samples | 32 | 34 | 30 |
+| Measured alignment frames / estimated outliers above 3 px | 3,919 / 90 | 4,498 / 92 | 5,783 / 124 |
+| Final distance / projected observed-head offset | 32.095 m / 0.408 px | 32.465 m / 0.500 px | 8.697 m / 0.611 px |
 
 The original review found all 16 retained outliers within 50 ms of a switch or
 target reacquisition; its last 14 settled history samples were below one pixel
@@ -244,6 +248,38 @@ The later snapshot had no recorded aim-assist error fields, and its last switch
 was camera-confirmed. Its file `updated_at` was 18:11:43Z, after tracking ended.
 These results support the user's improvement report, not perfect alignment in
 every frame or independent confirmation of all unconfirmed switches.
+
+The latest follow-up added **1,299 corrections and nine switch requests**.
+Eight requests assigned a target: seven were camera-confirmed; the eighth ended
+confirmation with `aim_or_lock_lost` after 105 ms, but subsequent fresh screen
+samples still showed the requested enemy near center (about 0.26-1.35 px).
+The remaining request was cancelled as `stick_centered` after 15 ms. Thus all
+57 requests are accounted for: 51 handoffs, five searches with no directional
+target, and one centered-stick cancellation.
+
+This play added **1,339 `native_assist_inactive` camera rejections**. Retained
+transitions often resumed tracking after about 0.8 s; held-idle samples also
+recorded the native flag becoming false. The capture does not identify which
+game action caused these pauses. Asked specifically, the user reported **no
+noticeable lock drops while keeping L2 held**. Preserve the native gate; these
+records do not justify bypassing it. There were 18 fresh L2-only head-lock
+samples from the additional play.
+
+The additional 1,285 alignment measurements included 32 estimated outlier frames.
+All 16 retained outlier samples had zero applied calibration: 14 were `new_point`
+samples; the other two had larger controller errors while still smoothing,
+including one 24 ms after a switch. This supports acquisition-related residuals
+but does not classify every outlier in the aggregate. Among the 27 recent history
+samples with ongoing motion tracking, all used precise follow, 25 estimated
+offsets were within one pixel, and the maximum was 2.48 px. The final estimated
+offset was 0.200 px; its observed-snapshot offset is in the table above.
+
+No populated mod error fields or Lua exceptions were found in this review.
+REFramework logged graphics presentation failures; the latest at local
+02:14:26.133 was followed by successful initialization at 02:14:26.266. The logs
+do not attribute them to this mod. **No gameplay change was justified by this
+review; saved and gameplay-validated versions remain 1.5.7.** Historic offline
+checks were not rerun for this documentation-only update.
 
 ## Working on this repository
 
