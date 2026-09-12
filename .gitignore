@@ -1,0 +1,10 @@
+# This repository lives in the game installation. Include only the mod's files.
+*
+!/.gitignore
+!/.gitattributes
+!/Better Aim Assist - Readme.md
+!/reframework/
+!/reframework/autorun/
+!/reframework/autorun/better_aim_assist.lua
+!/reframework/autorun/better_aim_assist/
+!/reframework/autorun/better_aim_assist/*.lua
